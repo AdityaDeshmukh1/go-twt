@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 type Post struct {
