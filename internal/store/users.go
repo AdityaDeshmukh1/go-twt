@@ -38,3 +38,31 @@ VALUES ($1, $2, $3) RETURNING id, created_at`
 
 	return nil
 }
+
+func (s *UsersStore) GetByEmail(ctx context.Context, email string) (*User, error) {
+	user := &User{}
+	query := `
+	SELECT id, username, email, password_hash, created_at
+	FROM users
+	WHERE email = $1`
+
+	err := s.db.QueryRowContext(
+		ctx,
+		query,
+		email,
+	).Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil // User not found
+		}
+		return nil, err
+	}
+
+	return user, nil
+}
