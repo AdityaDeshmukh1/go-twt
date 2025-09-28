@@ -1,6 +1,7 @@
 package main
 
 import (
+	"go-twt/internal/store"
 	"log"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 type application struct {
 	config config
+	store  store.Storage
 }
 
 type config struct {
