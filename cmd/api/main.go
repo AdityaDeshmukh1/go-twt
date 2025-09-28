@@ -18,7 +18,7 @@ func main() {
 		},
 	}
 
-	db, err := db.New(
+	dbConn, err := db.New(
 		cfg.db.addr,
 		cfg.db.maxOpenConns,
 		cfg.db.maxIdleConns,
@@ -27,11 +27,10 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	defer db.Close()
+	defer dbConn.Close()
 	log.Println("DB Connected - connection pool established!")
 
-	store := store.NewStorage(db)
+	store := store.NewStorage(dbConn)
 	app := &application{
 		config: cfg,
 		store:  store,

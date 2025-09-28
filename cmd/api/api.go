@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-twt/internal/store"
+	"html/template"
 	"log"
 	"net/http"
 	"time"
@@ -34,30 +35,37 @@ func (app *application) mount() http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-
-	// Set a timeout value on the request context (ctx), that will signal
-	// through ctx.Done() that the request has timed out and further
-	// processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
+	// Serve frontend files
+	tmpl := template.Must(template.ParseFiles("web/index.html"))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		tmpl.Execute(w, nil)
+	})
+
+	// Serve static assets (CSS/JS)
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./web/static"))))
+
+	// API routes
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHandler)
 
+		r.Post("/signup", app.signupHandler)
+		r.Post("/login", app.loginHandler)
 	})
+
 	return r
 }
 
 func (app *application) run(mux http.Handler) error {
-
 	srv := &http.Server{
 		Addr:         app.config.addr,
-		Handler:      app.mount(),
-		WriteTimeout: time.Second * 30,
-		ReadTimeout:  time.Second * 10,
-		IdleTimeout:  time.Minute,
+		Handler:      mux,
+		WriteTimeout: 30 * time.Second,
+		ReadTimeout:  10 * time.Second,
+		IdleTimeout:  1 * time.Minute,
 	}
 
-	log.Printf("Server has started at %s", app.config.addr)
-
+	log.Printf("Server started at %s", app.config.addr)
 	return srv.ListenAndServe()
 }
