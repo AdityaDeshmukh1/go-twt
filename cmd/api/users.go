@@ -51,5 +51,6 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Welcome back, " + user.Username + "!"))
+	http.Redirect(w, r, "/feed", http.StatusSeeOther)
+
 }

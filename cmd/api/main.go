@@ -31,6 +31,7 @@ func main() {
 	log.Println("DB Connected - connection pool established!")
 
 	store := store.NewStorage(dbConn)
+
 	app := &application{
 		config: cfg,
 		store:  store,
