@@ -1,0 +1,22 @@
+{{define "title"}}Feed{{end}}
+
+{{define "content"}}
+<h2>Your Feed</h2>
+<form action="/post" method="post">
+  <label>
+    What's happening?
+    <textarea name="content" rows="3" required></textarea>
+  </label>
+  <button type="submit">Post</button>
+</form>
+
+<div id="feed">
+  {{range .Posts}}
+    <article>
+      <p>{{.}}</p>
+    </article>
+  {{else}}
+    <p>No posts yet.</p>
+  {{end}}
+</div>
+{{end}}

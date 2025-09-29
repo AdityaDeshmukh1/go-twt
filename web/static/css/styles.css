@@ -1,0 +1,19 @@
+/* Custom tweaks on top of Pico.css */
+body {
+  max-width: 700px;
+  margin: auto;
+  padding: 1rem;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+.feed-post {
+  border-bottom: 1px solid var(--pico-muted-border-color);
+  padding: 1rem 0;
+}
+
+.feed-post:last-child {
+  border-bottom: none;
+}
