@@ -1,0 +1,72 @@
+{{define "title"}}{{.User.DisplayName}} (@{{.User.Username}}) / go-twt{{end}}
+
+{{define "content"}}
+<div class="page-header">
+  <h2>Profile</h2>
+</div>
+
+<div style="padding: 1.5rem; border-bottom: 1px solid var(--muted-border-color);">
+  <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+    <div class="tweet-avatar" style="width: 80px; height: 80px; font-size: 2rem;">
+      {{if .User.Avatar}}
+        <img src="{{.User.Avatar}}" alt="{{.User.Username}}">
+      {{else}}
+        {{slice .User.Username 0 1 | upper}}
+      {{end}}
+    </div>
+    
+    <div style="flex: 1;">
+      <h3 style="margin: 0;">{{.User.DisplayName}}</h3>
+      <p style="color: var(--muted-color); margin: 0;">@{{.User.Username}}</p>
+      
+      {{if .IsOwnProfile}}
+        <button onclick="location.href='/settings'" style="margin-top: 0.5rem;">
+          Edit Profile
+        </button>
+      {{else}}
+        <button hx-post="/api/user/{{.User.ID}}/follow" 
+                hx-swap="outerHTML"
+                style="margin-top: 0.5rem;">
+          {{if .IsFollowing}}Unfollow{{else}}Follow{{end}}
+        </button>
+      {{end}}
+    </div>
+  </div>
+  
+  {{if .User.Bio}}
+    <p>{{.User.Bio}}</p>
+  {{end}}
+  
+  <div style="display: flex; gap: 1.5rem; margin-top: 1rem; color: var(--muted-color);">
+    <span><strong style="color: var(--color);">{{.User.FollowingCount}}</strong> Following</span>
+    <span><strong style="color: var(--color);">{{.User.FollowerCount}}</strong> Followers</span>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div style="display: flex; border-bottom: 1px solid var(--muted-border-color);">
+  <a href="/profile/{{.User.Username}}" 
+     style="flex: 1; text-align: center; padding: 1rem; text-decoration: none; border-bottom: 2px solid var(--primary);">
+    Tweets
+  </a>
+  <a href="/profile/{{.User.Username}}/replies" 
+     style="flex: 1; text-align: center; padding: 1rem; text-decoration: none; color: var(--muted-color);">
+    Replies
+  </a>
+  <a href="/profile/{{.User.Username}}/likes" 
+     style="flex: 1; text-align: center; padding: 1rem; text-decoration: none; color: var(--muted-color);">
+    Likes
+  </a>
+</div>
+
+<!-- User's Tweets -->
+<div id="user-tweets">
+  {{range .Tweets}}
+    {{template "tweet" .}}
+  {{else}}
+    <div style="padding: 2rem; text-align: center; color: var(--muted-color);">
+      <p>No tweets yet.</p>
+    </div>
+  {{end}}
+</div>
+{{end}}

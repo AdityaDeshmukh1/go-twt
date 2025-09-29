@@ -1,0 +1,45 @@
+{{define "tweet"}}
+<article class="tweet">
+  <div class="tweet-avatar">
+    {{if .Author}}
+      {{slice .Author.Username 0 1}}
+    {{else}}
+      ?
+    {{end}}
+  </div>
+  
+  <div class="tweet-content">
+    <div class="tweet-header">
+      {{if .Author}}
+        <a href="/profile/{{.Author.Username}}" class="tweet-author">
+          {{.Author.Username}}
+        </a>
+        <span class="tweet-username">@{{.Author.Username}}</span>
+      {{end}}
+      <span class="tweet-time">· {{timeAgo .CreatedAt}}</span>
+    </div>
+    
+    <div class="tweet-text">
+      {{.Content}}
+    </div>
+    
+    <div class="tweet-actions">
+      <button class="tweet-action">
+        💬 <span>{{.ReplyCount}}</span>
+      </button>
+      
+      <button class="tweet-action">
+        🔁 <span>{{.RetweetCount}}</span>
+      </button>
+      
+      <button class="tweet-action">
+        ❤️ <span>{{.LikeCount}}</span>
+      </button>
+      
+      <button class="tweet-action">
+        📊
+      </button>
+    </div>
+  </div>
+</article>
+{{end}}

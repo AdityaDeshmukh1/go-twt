@@ -1,0 +1,48 @@
+{{define "title"}}Welcome to go-twt{{end}}
+
+{{define "content"}}
+<div class="auth-container">
+  <h2>🐦 Welcome to go-twt</h2>
+  
+  <details open>
+    <summary>Login</summary>
+    <form action="/v1/login" method="post">
+      <label>
+        Email
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </label>
+      
+      <label>
+        Password
+        <input type="password" name="password" placeholder="••••••••" required>
+      </label>
+      
+      <button type="submit">Log in</button>
+    </form>
+  </details>
+
+  <details>
+    <summary>Sign up</summary>
+    <form action="/v1/signup" method="post">
+      <label>
+        Username
+        <input type="text" name="username" placeholder="johndoe" required>
+        <small>This will be your @username</small>
+      </label>
+      
+      <label>
+        Email
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </label>
+      
+      <label>
+        Password
+        <input type="password" name="password" placeholder="••••••••" required minlength="8">
+        <small>At least 8 characters</small>
+      </label>
+      
+      <button type="submit">Create account</button>
+    </form>
+  </details>
+</div>
+{{end}}

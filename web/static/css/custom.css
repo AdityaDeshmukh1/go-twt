@@ -1,0 +1,22 @@
+/* Add any additional custom styles here */
+/* The layout.html has most styles inline for now */
+
+/* You can move styles here as your app grows */
+
+/* Example: Custom button variants */
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--muted-border-color);
+}
+
+.btn-ghost:hover {
+  background: var(--muted-border-color);
+}
+
+/* Example: Custom card styles */
+.card {
+  background: var(--card-background-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  border: 1px solid var(--muted-border-color);
+}

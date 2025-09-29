@@ -1,0 +1,19 @@
+{{define "composer"}}
+<div class="tweet-composer">
+  <form action="/tweet" method="post">
+    <textarea 
+      name="content" 
+      placeholder="What's happening?" 
+      rows="3" 
+      maxlength="280"
+      required></textarea>
+    
+    <div class="composer-actions">
+      <div class="char-count">
+        <span id="char-count">0</span> / 280
+      </div>
+      <button type="submit">Tweet</button>
+    </div>
+  </form>
+</div>
+{{end}}{end}}

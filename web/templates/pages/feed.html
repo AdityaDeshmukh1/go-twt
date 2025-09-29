@@ -1,0 +1,20 @@
+{{define "title"}}Home / go-twt{{end}}
+
+{{define "content"}}
+<div class="page-header">
+  <h2>Home</h2>
+</div>
+
+{{template "composer" .}}
+
+<div id="timeline">
+  {{range .Posts}}
+    {{template "tweet" .}}
+  {{else}}
+    <div class="empty-state">
+      <h3>Welcome to go-twt!</h3>
+      <p>No tweets yet. Be the first to tweet!</p>
+    </div>
+  {{end}}
+</div>
+{{end}}

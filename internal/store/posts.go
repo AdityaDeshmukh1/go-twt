@@ -3,19 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
-
-	"github.com/lib/pq"
 )
-
-type Post struct {
-	ID        int64    `json:"id"`
-	Content   string   `json:"content"`
-	Title     string   `json:"title"`
-	UserID    int64    `json:"user_id"`
-	Tags      []string `json:"tags"`
-	CreatedAt string   `json:"created_id"`
-	UpdatedAt string   `json:"updated_id"`
-}
 
 type PostStore struct {
 	db *sql.DB
@@ -23,64 +11,116 @@ type PostStore struct {
 
 func (s *PostStore) Create(ctx context.Context, post *Post) error {
 	query := `
-	INSERT INTO posts (content, title, user_id, tags)
-	VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at
+		INSERT INTO posts (user_id, content)
+		VALUES ($1, $2)
+		RETURNING id, created_at
 	`
+
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
-		post.Content,
-		post.Title,
 		post.UserID,
-		pq.Array(post.Tags),
-	).
-		Scan(
-			&post.ID,
-			&post.CreatedAt,
-			&post.UpdatedAt,
-		)
+		post.Content,
+	).Scan(&post.ID, &post.CreatedAt)
 
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-func (s *PostStore) GetPostsForFeed(ctx context.Context, limit int) ([]*Post, error) {
+func (s *PostStore) GetFeed(ctx context.Context, limit int, offset int) ([]Post, error) {
 	query := `
-	SELECT id, content,title, user_id, tags, created_at, updated_at
-	FROM posts
-	ORDER BY created_at DESC
-	LIMIT $1`
+		SELECT 
+			p.id, 
+			p.user_id, 
+			p.content, 
+			p.created_at,
+			u.id,
+			u.username,
+			u.email,
+			u.created_at
+		FROM posts p
+		JOIN users u ON p.user_id = u.id
+		ORDER BY p.created_at DESC
+		LIMIT $1 OFFSET $2
+	`
 
-	rows, err := s.db.QueryContext(ctx, query, limit)
+	rows, err := s.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	posts := []*Post{}
+	var posts []Post
 	for rows.Next() {
-		post := &Post{}
+		var post Post
+		var user User
+
 		err := rows.Scan(
 			&post.ID,
-			&post.Content,
-			&post.Title,
 			&post.UserID,
-			pq.Array(&post.Tags),
+			&post.Content,
 			&post.CreatedAt,
-			&post.UpdatedAt,
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.CreatedAt,
 		)
-
 		if err != nil {
 			return nil, err
 		}
+
+		post.Author = &user
 		posts = append(posts, post)
 	}
 
-	if err := rows.Err(); err != nil {
+	return posts, rows.Err()
+}
+
+func (s *PostStore) GetByUserID(ctx context.Context, userID int64, limit int) ([]Post, error) {
+	query := `
+		SELECT 
+			p.id, 
+			p.user_id, 
+			p.content, 
+			p.created_at,
+			u.id,
+			u.username,
+			u.email,
+			u.created_at
+		FROM posts p
+		JOIN users u ON p.user_id = u.id
+		WHERE p.user_id = $1
+		ORDER BY p.created_at DESC
+		LIMIT $2
+	`
+
+	rows, err := s.db.QueryContext(ctx, query, userID, limit)
+	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	return posts, nil
+	var posts []Post
+	for rows.Next() {
+		var post Post
+		var user User
+
+		err := rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Content,
+			&post.CreatedAt,
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Author = &user
+		posts = append(posts, post)
+	}
+
+	return posts, rows.Err()
 }
