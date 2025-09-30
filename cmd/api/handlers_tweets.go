@@ -7,12 +7,11 @@ import (
 
 // Show feed/timeline
 func (app *application) feedHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Get current user from session
-	// For now, use a mock user
-	mockUser := &store.User{
-		ID:       1,
-		Username: "testuser",
-		Email:    "test@example.com",
+
+	user, err := app.getCurrentUser(r)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	// Get posts from database
@@ -24,7 +23,7 @@ func (app *application) feedHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := store.FeedPageData{
 		PageData: store.PageData{
-			CurrentUser: mockUser,
+			CurrentUser: user,
 			ActivePage:  "feed",
 			Title:       "Home",
 		},
