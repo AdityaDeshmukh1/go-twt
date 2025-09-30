@@ -24,6 +24,28 @@
       --spacing: 1rem;
       --border-radius: 12px;
     }
+/* Minimal scrollbar for main app */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted-border-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--muted-border-color);
+}
 
     /* Remove Pico's default container behavior */
     body > header,

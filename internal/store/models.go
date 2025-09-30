@@ -29,6 +29,7 @@ type PageData struct {
 	CurrentUser *User
 	ActivePage  string
 	Title       string
+	Error       string
 }
 
 type FeedPageData struct {
