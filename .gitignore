@@ -1,3 +1,4 @@
 TODO
 bin/*
 .air.toml
+scripts/startup.sh
