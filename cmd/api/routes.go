@@ -28,10 +28,13 @@ func (app *application) mount() http.Handler {
 	r.Post("/v1/login", app.loginHandler)
 	r.Post("/v1/signup", app.signupHandler)
 
-	// Protected routes (TODO: add auth middleware later)
-	r.Get("/feed", app.feedHandler)
-	r.Post("/tweet", app.createTweetHandler)
-	r.Post("/logout", app.logoutHandler)
+	r.Group(func(r chi.Router) {
+		r.Use(app.requireLogin)
+		r.Get("/feed", app.feedHandler)
+		r.Post("/tweet", app.createTweetHandler)
+		r.Post("/logout", app.logoutHandler)
+
+	})
 
 	// API routes
 	r.Route("/v1", func(r chi.Router) {

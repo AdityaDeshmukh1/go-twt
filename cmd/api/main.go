@@ -5,11 +5,16 @@ import (
 	"go-twt/internal/env"
 	"go-twt/internal/store"
 	"log"
+
+	"github.com/gorilla/sessions"
 )
 
+var sessionStore *sessions.CookieStore
+
 type application struct {
-	config config
-	store  store.Storage
+	config   config
+	store    store.Storage
+	sessions *sessions.CookieStore
 }
 
 type config struct {
@@ -25,6 +30,17 @@ type dbConfig struct {
 }
 
 func main() {
+	// Sessions stuff
+
+	// We need to generate a random key for prod
+	sessionStore = sessions.NewCookieStore([]byte("super-secret-key"))
+	sessionStore.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 1,
+		HttpOnly: true,
+		Secure:   false,
+	}
+
 	cfg := config{
 		addr: env.GetString("ADDR", ":8080"),
 		db: dbConfig{
@@ -50,8 +66,9 @@ func main() {
 	store := store.NewStorage(dbConn)
 
 	app := &application{
-		config: cfg,
-		store:  store,
+		config:   cfg,
+		store:    store,
+		sessions: sessionStore,
 	}
 
 	mux := app.mount()
