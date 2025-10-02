@@ -18,9 +18,9 @@ type Storage struct {
 		GetByID(ctx context.Context, id int64) (*User, error)
 	}
 	Likes interface {
-		Create(ctx context.Context, userID, postID int64) error
-		Delete(ctx context.Context, userID, postID int64) error
-		Exists(ctx context.Context, userID, postID int64) (bool, error)
+		Create(ctx context.Context, like *Like) error
+		Delete(ctx context.Context, like *Like) error
+		Exists(ctx context.Context, like *Like) (bool, error)
 		CountByPost(ctx context.Context, postID int64) (int, error)
 	}
 	Comments interface {
