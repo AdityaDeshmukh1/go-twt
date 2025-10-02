@@ -18,9 +18,10 @@ type Post struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 
 	// Joined fields
-	Author     *User `json:"author,omitempty"`
-	LikeCount  int   `json:"like_count"`
-	ReplyCount int   `json:"reply_count"`
+	Author       *User `json:"author,omitempty"`
+	LikeCount    int   `json:"like_count"`
+	RetweetCount int   `json:"retweet_count`
+	ReplyCount   int   `json:"reply_count"`
 }
 
 type Like struct {

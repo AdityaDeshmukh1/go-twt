@@ -28,19 +28,22 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 
 func (s *PostStore) GetFeed(ctx context.Context, limit int, offset int) ([]Post, error) {
 	query := `
-		SELECT 
-			p.id, 
-			p.user_id, 
-			p.content, 
-			p.created_at,
-			u.id,
-			u.username,
-			u.email,
-			u.created_at
-		FROM posts p
-		JOIN users u ON p.user_id = u.id
-		ORDER BY p.created_at DESC
-		LIMIT $1 OFFSET $2
+	SELECT 
+		p.id, 
+		p.user_id, 
+		p.content, 
+		p.created_at,
+		u.id,
+		u.username,
+		u.email,
+		u.created_at,
+		(SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
+		(SELECT COUNT(*) FROM retweets WHERE post_id = p.id) AS retweet_count,
+		(SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS reply_count
+	FROM posts p
+	JOIN users u ON p.user_id = u.id
+	ORDER BY p.created_at DESC
+	LIMIT $1 OFFSET $2;
 	`
 
 	rows, err := s.db.QueryContext(ctx, query, limit, offset)
@@ -63,6 +66,9 @@ func (s *PostStore) GetFeed(ctx context.Context, limit int, offset int) ([]Post,
 			&user.Username,
 			&user.Email,
 			&user.CreatedAt,
+			&post.LikeCount,
+			&post.RetweetCount,
+			&post.ReplyCount,
 		)
 		if err != nil {
 			return nil, err
