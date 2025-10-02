@@ -17,6 +17,24 @@ type Storage struct {
 		GetByUsername(ctx context.Context, username string) (*User, error)
 		GetByID(ctx context.Context, id int64) (*User, error)
 	}
+	Likes interface {
+		Create(ctx context.Context, userID, postID int64) error
+		Delete(ctx context.Context, userID, postID int64) error
+		Exists(ctx context.Context, userID, postID int64) (bool, error)
+		CountByPost(ctx context.Context, postID int64) (int, error)
+	}
+	Comments interface {
+		Create(ctx context.Context, comment *Comment) error
+		Delete(ctx context.Context, commentID, userID int64) error
+		GetByPost(ctx context.Context, postID int64, limit, offset int) ([]Comment, error)
+		CountByPost(ctx context.Context, postID int64) (int, error)
+	}
+	Retweets interface {
+		Create(ctx context.Context, retweet *Retweet) error
+		Delete(ctx context.Context, userID, postID int64) error
+		Exists(ctx context.Context, userID, postID int64) (bool, error)
+		CountByPost(ctx context.Context, postID int64) (int, error)
+	}
 }
 
 func NewStorage(db *sql.DB) Storage {
