@@ -6,16 +6,18 @@ import (
 	"strconv"
 )
 
+// ----------------------
+// Feed / Tweets / Likes
+// ----------------------
+
 // Show feed/timeline
 func (app *application) feedHandler(w http.ResponseWriter, r *http.Request) {
-
 	user, err := app.getCurrentUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	// Get posts from database
 	posts, err := app.store.Posts.GetFeed(r.Context(), 20, 0)
 	if err != nil {
 		app.serverError(w, err)
@@ -42,10 +44,10 @@ func (app *application) feedHandler(w http.ResponseWriter, r *http.Request) {
 
 // Create a new tweet
 func (app *application) createTweetHandler(w http.ResponseWriter, r *http.Request) {
-	// TODO: Get current user from session
-	mockUser := &store.User{
-		ID:       1,
-		Username: "testuser",
+	user, err := app.getCurrentUser(r)
+	if err != nil {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	content := r.FormValue("content")
@@ -55,33 +57,36 @@ func (app *application) createTweetHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	post := &store.Post{
-		UserID:  mockUser.ID,
+		UserID:  user.ID,
 		Content: content,
 	}
 
-	err := app.store.Posts.Create(r.Context(), post)
+	err = app.store.Posts.Create(r.Context(), post)
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	// Redirect back to feed
 	http.Redirect(w, r, "/feed", http.StatusSeeOther)
 }
 
+// Toggle like/unlike
 func (app *application) toggleLikeHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := app.getCurrentUser(r)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
 	}
 
 	postIDStr := r.FormValue("post_id")
 	if postIDStr == "" {
 		http.Error(w, "Missing post_id", http.StatusBadRequest)
+		return
 	}
 
 	postID, err := strconv.ParseInt(postIDStr, 10, 64)
@@ -112,6 +117,5 @@ func (app *application) toggleLikeHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	// Redirect back to the feed (or post page)
 	http.Redirect(w, r, "/feed", http.StatusSeeOther)
 }

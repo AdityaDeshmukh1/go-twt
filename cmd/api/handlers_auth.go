@@ -7,6 +7,10 @@ import (
 	"net/http"
 )
 
+// ----------------------
+// Auth / Session Handlers
+// ----------------------
+
 // Show login/signup page (uses auth-layout, NOT main layout)
 func (app *application) authPageHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
@@ -21,17 +25,14 @@ func (app *application) authPageHandler(w http.ResponseWriter, r *http.Request) 
 
 // Handle login POST
 func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
-	// Parse form
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	// Validate
 	if email == "" || password == "" {
 		http.Redirect(w, r, "/?error=All+fields+are+required", http.StatusSeeOther)
 		return
 	}
 
-	// Get user from database
 	user, err := app.store.Users.GetByEmail(r.Context(), email)
 	if err != nil {
 		log.Printf("Login error: %v", err)
@@ -39,8 +40,7 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Verify password with bcrypt (we'll add later)
-	// For now, just check if password matches (INSECURE - fix later)
+	// TODO: Replace with bcrypt password check
 	if user.Password != password {
 		http.Redirect(w, r, "/?error=Invalid+email+or+password", http.StatusSeeOther)
 		return
@@ -51,18 +51,15 @@ func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 	session.Save(r, w)
 
 	log.Printf("User logged in: %s", user.Email)
-
 	http.Redirect(w, r, "/feed", http.StatusSeeOther)
 }
 
 // Handle signup POST
 func (app *application) signupHandler(w http.ResponseWriter, r *http.Request) {
-	// Parse form
 	username := r.FormValue("username")
 	email := r.FormValue("email")
 	password := r.FormValue("password")
 
-	// Validate
 	if username == "" || email == "" || password == "" {
 		http.Redirect(w, r, "/?error=All+fields+are+required", http.StatusSeeOther)
 		return
@@ -73,14 +70,12 @@ func (app *application) signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Hash password (we'll add bcrypt later)
-	// For now, store plaintext (INSECURE - fix later)
+	// TODO: Hash password using bcrypt
 
-	// Create user
 	user := &store.User{
 		Username: username,
 		Email:    email,
-		Password: password, // TODO: Hash this!
+		Password: password,
 	}
 
 	err := app.store.Users.Create(r.Context(), user)
@@ -91,18 +86,18 @@ func (app *application) signupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("User created: %s", user.Email)
-
 	http.Redirect(w, r, "/feed", http.StatusSeeOther)
 }
 
 // Handle logout
 func (app *application) logoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := app.sessions.Get(r, "go-twt-session")
-	session.Options.MaxAge = -1 // delete cookie
+	session.Options.MaxAge = -1
 	session.Save(r, w)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+// Get the current logged-in user from session
 func (app *application) getCurrentUser(r *http.Request) (*store.User, error) {
 	session, _ := app.sessions.Get(r, "go-twt-session")
 	val, ok := session.Values["userID"].(int64)
@@ -112,6 +107,7 @@ func (app *application) getCurrentUser(r *http.Request) (*store.User, error) {
 	return app.store.Users.GetByID(r.Context(), val)
 }
 
+// Middleware to require login
 func (app *application) requireLogin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		session, _ := app.sessions.Get(r, "go-twt-session")
