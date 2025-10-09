@@ -33,6 +33,7 @@ func (app *application) mount() http.Handler {
 		r.Get("/feed", app.feedHandler)
 		r.Post("/tweet", app.createTweetHandler)
 		r.Post("/logout", app.logoutHandler)
+		r.Post("/like", app.toggleLikeHandler)
 
 	})
 
