@@ -20,7 +20,7 @@ type Post struct {
 	// Joined fields
 	Author       *User `json:"author,omitempty"`
 	LikeCount    int   `json:"like_count"`
-	RetweetCount int   `json:"retweet_count`
+	RetweetCount int   `json:"retweet_count"`
 	ReplyCount   int   `json:"reply_count"`
 }
 
